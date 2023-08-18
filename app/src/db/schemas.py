@@ -1,15 +1,6 @@
-import re
 import uuid
 from typing import Optional
-
-from fastapi import HTTPException
-from pydantic import BaseModel, constr, validator
-
-#########################
-# BLOCK WITH API MODELS #
-#########################
-
-LETTER_MATCH_PATTERN = re.compile(r"^[а-яА-Яa-zA-Z\-]+$")
+from pydantic import BaseModel, constr
 
 
 class TunedModel(BaseModel):
@@ -20,7 +11,7 @@ class TunedModel(BaseModel):
 
 
 class ShowUser(TunedModel):
-    user_id: uuid.UUID
+    id: uuid.UUID
     fullname: str
     is_active: bool
 
@@ -28,14 +19,6 @@ class ShowUser(TunedModel):
 class UserCreate(BaseModel):
     fullname: str
     password: str
-
-    @validator("fullname")
-    def validate_surname(cls, value):
-        if not LETTER_MATCH_PATTERN.match(value):
-            raise HTTPException(
-                status_code=422, detail="Fullname should contains only letters"
-            )
-        return value
 
 
 class DeleteUserResponse(BaseModel):
@@ -48,14 +31,7 @@ class UpdatedUserResponse(BaseModel):
 
 class UpdateUserRequest(BaseModel):
     fullname: Optional[constr(min_length=1)]
-
-    @validator("fullname")
-    def validate_name(cls, value):
-        if not LETTER_MATCH_PATTERN.match(value):
-            raise HTTPException(
-                status_code=422, detail="Name should contains only letters"
-            )
-        return value
+    hashed_password: str
 
 
 class Token(BaseModel):

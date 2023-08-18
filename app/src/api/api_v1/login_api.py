@@ -1,8 +1,7 @@
 from datetime import timedelta
 from typing import Union
-from uuid import UUID
 
-from db.session import get_db
+from src.db.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -10,59 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.settings import variables
 from src.core.utils import Hasher, create_access_token
 from src.db.crud import UserDAL
-from src.db.models.users import AdminRole, User
-from src.db.schemas import ShowUser, Token, UserCreate
+from src.db.models import AdminRole, User
+from src.db.schemas import Token
 
 
 login_router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")
-
-
-async def _create_new_user(body: UserCreate, session) -> ShowUser:
-    async with session.begin():
-        user_dal = UserDAL(session)
-        user = await user_dal.create_user(
-            fullname=body.fullname,
-            hashed_password=Hasher.get_password_hash(body.password),
-            roles=[
-                AdminRole.ROLE_ADMIN,
-            ],
-        )
-        return ShowUser(
-            user_id=user.user_id,
-            fullname=user.fullname,
-            is_active=user.is_active,
-        )
-
-
-async def _delete_user(user_id, session) -> Union[UUID, None]:
-    async with session.begin():
-        user_dal = UserDAL(session)
-        deleted_user_id = await user_dal.delete_user(
-            user_id=user_id,
-        )
-        return deleted_user_id
-
-
-async def _update_user(
-    updated_user_params: dict, user_id: UUID, session
-) -> Union[UUID, None]:
-    async with session.begin():
-        user_dal = UserDAL(session)
-        updated_user_id = await user_dal.update_user(
-            user_id=user_id, **updated_user_params
-        )
-        return updated_user_id
-
-
-async def _get_user_by_id(user_id, session) -> Union[User, None]:
-    async with session.begin():
-        user_dal = UserDAL(session)
-        user = await user_dal.get_user_by_id(
-            user_id=user_id,
-        )
-        if user is not None:
-            return user
 
 
 def check_user_permissions(target_user: User, current_user: User) -> bool:
@@ -70,7 +22,7 @@ def check_user_permissions(target_user: User, current_user: User) -> bool:
         raise HTTPException(
             status_code=406, detail="Superadmin cannot be deleted via API."
         )
-    if target_user.user_id != current_user.user_id:
+    if target_user.id != current_user.id:
         # check admin role
         if not {
             AdminRole.ROLE_ADMIN,
@@ -137,7 +89,7 @@ async def get_current_user_from_token(
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
 ):
-    user = await authenticate_user(form_data.fullname, form_data.password, db)
+    user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -145,7 +97,7 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=variables.token_life)
     access_token = create_access_token(
-        data={"sub": user.email, "other_custom_data": [1, 2, 3, 4]},
+        data={"sub": user.fullname, "other_custom_data": [1, 2, 3, 4]},
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}

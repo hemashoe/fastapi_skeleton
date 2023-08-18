@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,10 +14,12 @@ async def _create_new_user(body: UserCreate, db) -> ShowUser:
         async with session.begin():
             user_dal = UserDAL(session)
             user = await user_dal.create_user(
-                fullname=body.fullname, password=body.password, role=body.role
+                user_id=uuid.uuid4,
+                fullname=body.fullname,
+                password=body.password,
             )
             return ShowUser(
-                id=user.id,
+                user_id=user.user_id,
                 fullname=user.fullname,
                 role=user.role,
                 is_active=user.is_active,

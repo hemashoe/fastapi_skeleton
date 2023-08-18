@@ -22,7 +22,7 @@ class EnvironmentSettings:
         return config("ALGORITHM")
 
     def load_token_expiry(self):
-        return config("ACCESS_TOKEN_EXPIRE_MINUTES")
+        return int(config("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
 variables = EnvironmentSettings()
