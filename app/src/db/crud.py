@@ -4,11 +4,11 @@ from uuid import UUID
 from sqlalchemy import and_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.models import User, AdminRole
+from src.db.models import User, Faculty, StudyYear, Change
 
 
 class UserDAL:
-    """Data Access Layer for operating user info"""
+    """Data Access Layer for operating User info"""
 
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
@@ -18,7 +18,7 @@ class UserDAL:
         user_id: UUID,
         fullname: str,
         hashed_password: str,
-        roles: list[AdminRole],
+        roles: str,
     ) -> User:
         new_user = User(
             id=user_id,
@@ -67,3 +67,65 @@ class UserDAL:
         update_user_id_row = res.fetchone()
         if update_user_id_row is not None:
             return update_user_id_row[0]
+
+
+class FacultyDAL:
+    """Data Access Layer for operating Faculty info"""
+
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
+
+    async def create_user(
+        self,
+        faculty_id: UUID,
+        faculty_name: str,
+        faculty_dean: str,
+    ) -> Faculty:
+        new_faculty = User(
+            id=faculty_id,
+            faculty_name=faculty_name,
+            faculty_dean=faculty_dean,
+        )
+        self.db_session.add(new_faculty)
+        await self.db_session.flush()
+        return new_faculty
+
+
+class StudyYearDAL:
+    """Data Access Layer for operating StudyYear info"""
+
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
+
+    async def create_user(
+        self,
+        studyYear_id: int,
+        year: str,
+    ) -> StudyYear:
+        new_studyYear = User(
+            id=studyYear_id,
+            year=year,
+        )
+        self.db_session.add(new_studyYear)
+        await self.db_session.flush()
+        return new_studyYear
+
+
+class ChangeDAL:
+    """Data Access Layer for operating Change info"""
+
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
+
+    async def create_user(
+        self,
+        change_id: int,
+        year: str,
+    ) -> Change:
+        new_studyYear = User(
+            change_id=studyYear_id,
+            year=year,
+        )
+        self.db_session.add(new_studyYear)
+        await self.db_session.flush()
+        return new_studyYear

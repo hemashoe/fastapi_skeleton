@@ -1,6 +1,6 @@
 import uuid
 from typing import Optional
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr, UUID4
 
 
 class TunedModel(BaseModel):
@@ -16,24 +16,36 @@ class ShowUser(TunedModel):
     is_active: bool
 
 
-class UserCreate(BaseModel):
+class UserCreate(TunedModel):
     fullname: str
     password: str
 
 
-class DeleteUserResponse(BaseModel):
+class DeleteUserResponse(TunedModel):
     deleted_user_id: uuid.UUID
 
 
-class UpdatedUserResponse(BaseModel):
+class UpdatedUserResponse(TunedModel):
     updated_user_id: uuid.UUID
 
 
-class UpdateUserRequest(BaseModel):
+class UpdateUserRequest(TunedModel):
     fullname: Optional[constr(min_length=1)]
     hashed_password: str
 
 
-class Token(BaseModel):
+class Token(TunedModel):
     access_token: str
     token_type: str
+
+
+class ShowFaculty(TunedModel):
+    faculty_id: UUID4
+    faculty_name: str
+    faculty_dean: str
+
+
+class FacultyCreate(TunedModel):
+    faculty_id: UUID4
+    faculty_name: str
+    faculty_dean: str

@@ -1,12 +1,20 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.routing import APIRouter
+from fastapi.staticfiles import StaticFiles
 
-from src.api.api_v1.users_api import user_router
 from src.api.api_v1.login_api import login_router
+from src.api.api_v1.users_api import user_router
 
-app = FastAPI(title="TEST")
+app = FastAPI(title="Attendance System")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 main_router = APIRouter()
+
+
+@app.get("/")
+async def docs_redirect():
+    return RedirectResponse(url="/docs")
 
 
 main_router.include_router(user_router, prefix="/user", tags=["user"])

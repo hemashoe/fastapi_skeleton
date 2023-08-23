@@ -6,11 +6,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.api.api_v1.login_api import check_user_permissions, get_current_user_from_token
 from src.core.utils import Hasher
 from src.db.crud import UserDAL
-from src.db.models import User, AdminRole
+from src.db.models import AdminRole, User
 from src.db.schemas import (
     DeleteUserResponse,
     ShowUser,

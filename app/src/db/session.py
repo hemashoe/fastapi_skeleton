@@ -3,6 +3,9 @@ from typing import Generator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from src.core.settings import variables
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 engine = create_async_engine(
     variables.database,

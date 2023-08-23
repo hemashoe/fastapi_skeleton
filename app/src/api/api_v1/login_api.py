@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import Union
 
-from src.db.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -11,7 +10,7 @@ from src.core.utils import Hasher, create_access_token
 from src.db.crud import UserDAL
 from src.db.models import AdminRole, User
 from src.db.schemas import Token
-
+from src.db.session import get_db
 
 login_router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")
